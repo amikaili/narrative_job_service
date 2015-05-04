@@ -222,6 +222,9 @@ if (defined($parameters->{call_features_prophage_phispy}) && $parameters->{call_
 }
 my $genome = $gaserv->run_pipeline($inputgenome, $workflow);
 $genome->{gc_content} = 0.5;
+if(defined($inputgenome->{gc_content})){
+    $genome->{gc_content} = $inputgenome->{gc_content}+0;
+}
 if (defined($genome->{gc})) {
 	$genome->{gc_content} = $genome->{gc}+0;
 	delete $genome->{gc};
