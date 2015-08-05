@@ -82,6 +82,11 @@ foreach my $key (keys(%{$parameters})) {
 		if ($key eq "community_model_set") {
 			($modelset,my $info) = get_workspace_object($parameters->{workspace}."/".$finalparameters->{$key});
 		}
+		if ($key eq "fbas" && $command eq "compare_fbas") {
+			for (my $i=0; $i < @{$finalparameters->{fbas}}; $i++) {
+				push(@{$finalparameters->{fbas}},[$parameters->{workspace},$finalparameters->{fbas}->[$i]]);
+			}
+		}
 		if ($key eq "community_submodel_ids") {
 			$finalparameters->{models} = [];
 			for (my $i=0; $i < @{$finalparameters->{community_submodel_ids}}; $i++) {
@@ -156,13 +161,24 @@ if (defined($genomeset)) {
 		push(@{$finalparameters->{genome_workspaces}},$array->[0]);
 	}
 }
+if (defined($finalparameters->{expression_threshold_percentile}) && $finalparameters->{expression_threshold_percentile} > 1) {
+	$finalparameters->{expression_threshold_percentile} = $finalparameters->{expression_threshold_percentile}/100;
+}
+if (defined($finalparameters->{kappa}) && $finalparameters->{kappa} > 1) {
+	$finalparameters->{kappa} = $finalparameters->{kappa}/100;
+}
 if ($command eq "runfba" && !defined($finalparameters->{formulation}->{media})) {
 	$finalparameters->{formulation}->{media} = "Complete";
 	$finalparameters->{formulation}->{media_workspace} = "KBaseMedia";
 }
-if ($command eq "gapfill_model" && !defined($finalparameters->{formulation}->{formulation}->{media})) {
-	$finalparameters->{formulation}->{formulation}->{media} = "Complete";
-	$finalparameters->{formulation}->{formulation}->{media_workspace} = "KBaseMedia";
+if ($command eq "gapfill_model") {
+	if (!defined($finalparameters->{formulation}->{media})) {
+		$finalparameters->{formulation}->{media} = "Complete";
+		$finalparameters->{formulation}->{media_workspace} = "KBaseMedia";
+	}
+	if (defined($finalparameters->{simultaneous})) {
+		$finalparameters->{alpha} = 0.00014;
+	}
 }
 my $JSON = JSON->new->utf8(1);
 my $output;
