@@ -84,7 +84,7 @@ foreach my $key (keys(%{$parameters})) {
 		}
 		if ($key eq "fbas" && $command eq "compare_fbas") {
 			for (my $i=0; $i < @{$finalparameters->{fbas}}; $i++) {
-				push(@{$finalparameters->{fbas}},[$parameters->{workspace},$finalparameters->{fbas}->[$i]]);
+				$finalparameters->{fbas}->[$i] = [$parameters->{workspace},$finalparameters->{fbas}->[$i]];
 			}
 		}
 		if ($key eq "community_submodel_ids") {
