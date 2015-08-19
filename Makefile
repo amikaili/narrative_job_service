@@ -25,9 +25,9 @@ default:
 
 deploy: deploy-all
 
-deploy-all: | build-libs deploy-libs build-service deploy-scripts deploy-cfg
+deploy-all: | build-libs deploy-libs build-service deploy-client-scripts deploy-cfg
 
-deploy-client: | build-libs deploy-libs deploy-scripts
+deploy-client: | build-libs deploy-libs deploy-client-scripts
 
 deploy-service: | build-libs deploy-libs build-service deploy-cfg
 
@@ -58,7 +58,17 @@ build-libs:
 		--url $(SELF_URL) \
 		$(SERVICE_SPEC) lib
 
-##########################################
+# First do regular deploy-scripts then run special wrapper for fba
+deploy-client-scripts: deploy-scripts
+	export KB_TOP=$(TARGET); \
+	export KB_RUNTIME=$(DEPLOY_RUNTIME); \
+	export KB_PERL_PATH=$(TARGET)/lib ; \
+	export KB_DEPLOYMENT_CONFIG=$(TARGET)/deployment.cfg; \
+	export KB_SERVICE_NAME=fbaModelServices; \
+	export WRAP_VARIABLES="KB_DEPLOYMENT_CONFIG KB_SERVICE_NAME"; \
+	$(WRAP_PERL_SCRIPT) "$(TARGET)/plbin/njs-run-fba-modeling.pl" $(TARGET)/bin/njs-run-fba-modeling
+
+###########################################
 # test targets # requires /kb/deployment/user-env.sh to be sourced
 
 test: test-client
