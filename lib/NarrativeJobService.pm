@@ -352,8 +352,8 @@ sub check_app_state {
         }
         # get stdout text
         my $stdout = "";
-        if (exists($task->{outputs}{'awe_stdout.txt'}) && $task->{outputs}{'awe_stdout.txt'}{url}) {
-            $stdout = $self->_get_shock_file($task->{outputs}{'awe_stdout.txt'}{url});
+        if (exists($task->{outputs}{'awe_stdout_txt'}) && $task->{outputs}{'awe_stdout_txt'}{url}) {
+            $stdout = $self->_get_shock_file($task->{outputs}{'awe_stdout_txt'}{url});
         } elsif ($running || ($task->{state} eq 'suspend')) {
             $stdout = $self->_awe_action('work', $task->{taskid}.'_0', 'get', 'report=stdout');
         }
@@ -362,8 +362,8 @@ sub check_app_state {
         }
         # get stderr text
         my $stderr = "";
-        if (exists($task->{outputs}{'awe_stderr.txt'}) && $task->{outputs}{'awe_stderr.txt'}{url}) {
-            $stderr = $self->_get_shock_file($task->{outputs}{'awe_stderr.txt'}{url});
+        if (exists($task->{outputs}{'awe_stderr_txt'}) && $task->{outputs}{'awe_stderr_txt'}{url}) {
+            $stderr = $self->_get_shock_file($task->{outputs}{'awe_stderr_txt'}{url});
         } elsif ($running || ($task->{state} eq 'suspend')) {
             $stderr = $self->_awe_action('work', $task->{taskid}.'_0', 'get', 'report=stderr');
         }
@@ -725,12 +725,12 @@ sub _task_template {
         "dependsOn": [[% depends_on %]],
         [% inputs %]
         "outputs": {
-            "awe_stdout.txt": {
+            "awe_stdout_txt": {
                 "host": "[% shock_url %]",
                 "node": "-",
                 "attrfile": "userattr.json"
             },
-            "awe_stderr.txt": {
+            "awe_stderr_txt": {
                 "host": "[% shock_url %]",
                 "node": "-",
                 "attrfile": "userattr.json"
