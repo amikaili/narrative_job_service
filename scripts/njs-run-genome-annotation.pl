@@ -16,7 +16,7 @@ use Bio::KBase::workspace::ScriptHelpers qw(get_ws_client workspace workspaceURL
 
 #Defining globals describing behavior
 my $command     = "annotate_genome";
-my $param_file  = "parameters_json";
+my $param_file  = "parameters.json";
 my $service_url = "http://tutorial.theseed.org/services/genome_annotation";
 my $ws_url  = "http://kbase.us/services/ws";
 my $help    = 0;

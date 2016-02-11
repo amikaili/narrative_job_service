@@ -14,7 +14,7 @@ use Bio::KBase::fbaModelServices::ScriptHelpers qw(getToken get_workspace_object
 
 #Defining globals describing behavior
 my $command     = "";
-my $param_file  = "parameters_json";
+my $param_file  = "parameters.json";
 my $service_url = "http://kbase.us/services/KBaseFBAModeling";
 my $ws_url  = "http://kbase.us/services/ws";
 my $help    = 0;
