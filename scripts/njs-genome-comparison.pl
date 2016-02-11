@@ -16,7 +16,7 @@ use Bio::KBase::fbaModelServices::ScriptHelpers qw(fbaws printJobData get_fba_cl
 
 #Defining globals describing behavior
 my $command     = "";
-my $param_file  = "parameters_json";
+my $param_file  = "parameters.json";
 my $service_url = "https://kbase.us/services/genome_comparison/jsonrpc";
 my $ws_url  = "http://kbase.us/services/ws";
 my $ujs_url = "https://kbase.us/services/userandjobstate";

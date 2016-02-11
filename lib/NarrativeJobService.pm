@@ -251,7 +251,7 @@ sub compose_app {
                 print STDERR "[service error] unsupported service '".$service->{service_name}."' for ".$step->{step_id}."\n";
                 die "[service error] unsupported service '".$service->{service_name}."' for ".$step->{step_id}.":";
             }
-            my $fname = 'parameters_json';
+            my $fname = 'parameters.json';
             my $arg_hash = $self->_hashify_args($step->{parameters});
             my $input_hash = $self->_post_shock_file($in_attr, $arg_hash, $fname);
             $task_vars->{inputs}   = '"inputs": '.$self->json->encode($input_hash).",\n";
@@ -275,7 +275,7 @@ sub compose_app {
         elsif ($step->{type} eq 'script') {
             # use wrapper
             if ($service->{has_files}) {
-                my $fname = 'parameters_json';
+                my $fname = 'parameters.json';
                 my $arg_min = $self->_minify_args($step->{parameters});
                 my $input_hash = $self->_post_shock_file($in_attr, $arg_min, $fname);
                 $task_vars->{inputs}   = '"inputs": '.$self->json->encode($input_hash).",\n";
