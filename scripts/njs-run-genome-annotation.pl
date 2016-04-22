@@ -287,6 +287,11 @@ if (defined($genome->{features})) {
 		delete $ftr->{feature_creation_event};
 	}
 }
+if (defined($genome->{close_genomes})) {
+	for (my $i=0; $i < @{$genome->{close_genomes}}; $i++) {
+		$genome->{close_genomes}->[$i]->{closeness_measure} = $genome->{close_genomes}->[$i]->{closeness_measure} + 0;
+	}
+}
 delete $genome->{contigs};
 delete $genome->{feature_creation_event};
 delete $genome->{analysis_events};
