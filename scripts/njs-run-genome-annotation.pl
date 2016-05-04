@@ -280,7 +280,7 @@ if (defined($genome->{features})) {
 		if (defined($ftr->{annotations})) {
 			delete $ftr->{annotations};
 		}
-		if (defined($ftr->{location})) {
+		if (defined($ftr->{location}) && scalar(@{$ftr->{location}})>0) {
 			$ftr->{location}->[0]->[1] = $ftr->{location}->[0]->[1]+0;
 			$ftr->{location}->[0]->[3] = $ftr->{location}->[0]->[3]+0;
 		}
