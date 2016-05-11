@@ -220,7 +220,10 @@ if (defined($parameters->{find_close_neighbors}) && $parameters->{find_close_nei
 if (defined($parameters->{call_features_prophage_phispy}) && $parameters->{call_features_prophage_phispy} == 1)  {
 	push(@{$workflow->{stages}},{name => "call_features_prophage_phispy"});
 }
-push(@{$workflow->{stages}},{name => "renumber_features"});
+
+#Commented out until understood how it affects both plant and microbe features
+#push(@{$workflow->{stages}},{name => "renumber_features"});
+
 my $genome = $gaserv->run_pipeline($inputgenome, $workflow);
 $genome->{gc_content} = 0.5;
 if(defined($inputgenome->{gc_content})){
