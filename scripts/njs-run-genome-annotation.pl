@@ -220,6 +220,7 @@ if (defined($parameters->{find_close_neighbors}) && $parameters->{find_close_nei
 if (defined($parameters->{call_features_prophage_phispy}) && $parameters->{call_features_prophage_phispy} == 1)  {
 	push(@{$workflow->{stages}},{name => "call_features_prophage_phispy"});
 }
+push(@{$workflow->{stages}},{name => "renumber_features"});
 my $genome = $gaserv->run_pipeline($inputgenome, $workflow);
 $genome->{gc_content} = 0.5;
 if(defined($inputgenome->{gc_content})){
@@ -280,11 +281,16 @@ if (defined($genome->{features})) {
 		if (defined($ftr->{annotations})) {
 			delete $ftr->{annotations};
 		}
-		if (defined($ftr->{location})) {
+		if (defined($ftr->{location}) && scalar(@{$ftr->{location}})>0) {
 			$ftr->{location}->[0]->[1] = $ftr->{location}->[0]->[1]+0;
 			$ftr->{location}->[0]->[3] = $ftr->{location}->[0]->[3]+0;
 		}
 		delete $ftr->{feature_creation_event};
+	}
+}
+if (defined($genome->{close_genomes})) {
+	for (my $i=0; $i < @{$genome->{close_genomes}}; $i++) {
+		$genome->{close_genomes}->[$i]->{closeness_measure} = $genome->{close_genomes}->[$i]->{closeness_measure} + 0;
 	}
 }
 delete $genome->{contigs};
