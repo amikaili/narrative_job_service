@@ -63,6 +63,9 @@ if ($parameters->{workspace} =~ m/^\d+$/) {
 } else {
 	$input->{workspace} = $parameters->{workspace};
 }
+my $annofunc = "Annotate Microbial Genome";
+my $version = 1;
+my $timestamp = DateTime->now()->datetime();
 my $inputgenome;
 my $contigsetref;
 my $oldfunchash = {};
@@ -104,6 +107,7 @@ if (defined($parameters->{input_genome})) {
 	};
 }
 if (defined($parameters->{input_contigset})) {
+	$annofunc = "Annotate Microbial Contigs";
 	if ($parameters->{input_contigset} =~ m/^\d+$/) {
 		$input->{objid} = $parameters->{input_contigset};
 	} else {
@@ -257,6 +261,20 @@ if ( defined($genome->{contigs}) && scalar(@{$genome->{contigs}})>0 ) {
 	$genome->{md5} = Digest::MD5::md5_hex($str);
 	$genome->{contigset_ref} = $contigsetref;
 }
+#Getting the seed ontology dictionary
+my $output = $ws->get_objects([{
+	workspace => "KBaseOntology",
+	name => "seed_subsystem_ontology"
+}]);
+#Building a hash of standardized seed function strings
+my $funchash = {};
+foreach my $term (keys(%{$output->[0]->{data}->{term_hash}})) {
+	my $rolename = lc($funchash->{term_hash}->{$term}->{name});
+	$rolename =~ s/[\d\-]+\.[\d\-]+\.[\d\-]+\.[\d\-]+//g;
+	$rolename =~ s/\s//g;
+	$rolename =~ s/\#.*$//g;
+	$funchash->{$rolename} = $term;
+}
 if (defined($genome->{features})) {
 	for (my $i=0; $i < @{$genome->{features}}; $i++) {
 		my $ftr = $genome->{features}->[$i];
@@ -265,6 +283,46 @@ if (defined($genome->{features})) {
 				$ftr->{function} = $oldfunchash->{$ftr->{id}};
 			}
 		}
+		if (defined($ftr->{function}) && length($ftr->{function}) > 0) {
+  			my $function = $ftr->{function};
+  			my $array = [split(/\#/,$function)];
+  			$function = shift(@{$array});
+			$function =~ s/\s+$//;
+			$array = [split(/\s*;\s+|\s+[\@\/]\s+/,$function)];
+			for (my $j=0;$j < @{$array}; $j++) {
+				my $rolename = lc($array->[$j]);
+				$rolename =~ s/[\d\-]+\.[\d\-]+\.[\d\-]+\.[\d\-]+//g;
+				$rolename =~ s/\s//g;
+				$rolename =~ s/\#.*$//g;
+				if (defined($funchash->{$rolename})) {
+					if (!defined($ftr->{ontology_terms}->{SSO}->{$funchash->{$rolename}->{id}})) {
+						$ftr->{ontology_terms}->{SSO}->{$funchash->{$rolename}->{id}} = {
+							 evidence => [],
+							 id => $funchash->{$rolename}->{id},
+							 term_name => $funchash->{$rolename}->{name},
+							 ontology_ref => $output->[0]->{info}->[6]."/".$output->[0]->{info}->[0]."/".$output->[0]->{info}->[4],
+							 term_lineage => [],
+						};
+					}
+					my $found = 0;
+					for (my $k=0; $k < @{$ftr->{ontology_terms}->{SSO}->{$funchash->{$rolename}->{id}}->{evidence}}; $k++) {
+						if ($ftr->{ontology_terms}->{SSO}->{$funchash->{$rolename}->{id}}->{evidence}->[$k]->{method} eq $annofunc) {
+							$ftr->{ontology_terms}->{SSO}->{$funchash->{$rolename}->{id}}->{evidence}->[$k]->{timestamp} = $timestamp;
+							$ftr->{ontology_terms}->{SSO}->{$funchash->{$rolename}->{id}}->{evidence}->[$k]->{method_version} = $version;
+							$found = 1;
+							last;
+						}
+					}
+					if ($found == 0) {
+						push(@{$ftr->{ontology_terms}->{SSO}->{$funchash->{$rolename}->{id}}->{evidence}},{
+							method => $annofunc,
+							method_version => $version,
+							timestamp => $timestamp
+						});
+					}
+				}
+			}
+  		}
 		if (!defined($ftr->{type}) && $ftr->{id} =~ m/(\w+)\.\d+$/) {
 			$ftr->{type} = $1;
 		}
@@ -327,6 +385,6 @@ if ($parameters->{workspace}  =~ m/^\d+$/) {
 } else {
    	$input->{workspace} = $parameters->{workspace};
 }
-my $output = $ws->save_objects($input);
+$output = $ws->save_objects($input);
 my $JSON = JSON->new->utf8(1);
 print STDOUT $JSON->encode($output)."\n";
